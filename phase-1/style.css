@@ -1,0 +1,146 @@
+:root {
+  --pl-purple: #37003c;
+  --pl-pink: #e90052;
+  --pl-cyan: #04f5ff;
+  --bg: #f5f5f7;
+  --card-bg: #ffffff;
+  --text: #1a1a1a;
+  --muted: #6b6b6b;
+  --border: #e0e0e0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header {
+  background: var(--pl-purple);
+  color: white;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.75rem;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--pl-cyan);
+  font-size: 0.95rem;
+}
+
+main {
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+section {
+  margin-bottom: 2.5rem;
+}
+
+h2 {
+  font-size: 1.1rem;
+  border-bottom: 2px solid var(--pl-pink);
+  padding-bottom: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.fixture-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.fixture-teams {
+  font-weight: 600;
+  flex: 1;
+  min-width: 180px;
+}
+
+.fixture-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fixture-form input[type='number'] {
+  width: 48px;
+  padding: 0.4rem;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.fixture-form span {
+  color: var(--muted);
+}
+
+.fixture-form button {
+  background: var(--pl-pink);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.fixture-form button:hover {
+  opacity: 0.9;
+}
+
+.saved-badge {
+  font-size: 0.8rem;
+  color: #0a8a3f;
+  font-weight: 600;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+th, td {
+  text-align: left;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  background: var(--pl-purple);
+  color: white;
+  font-size: 0.85rem;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 2rem 1.5rem;
+}
