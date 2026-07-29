@@ -1,22 +1,19 @@
 <script lang="ts">
-  let { fixture }: { fixture: { id: string; home: string; away: string } } = $props();
+  import { untrack } from 'svelte';
+  import { predictionsStore } from './predictions.svelte';
+  import type { Fixture } from './types';
 
-  const storageKey = `pl-predictor-${fixture.id}`;
+  let { fixture }: { fixture: Fixture } = $props();
 
-  function loadSaved() {
-    if (typeof localStorage === 'undefined') return { home: '', away: '' };
-    const raw = localStorage.getItem(storageKey);
-    return raw ? JSON.parse(raw) : { home: '', away: '' };
-  }
-
-  let saved = loadSaved();
-  let homeScore = $state<number | ''>(saved.home);
-  let awayScore = $state<number | ''>(saved.away);
+  const saved = untrack(() => predictionsStore.get(fixture.id));
+  let homeScore = $state<number | ''>(saved?.home ?? '');
+  let awayScore = $state<number | ''>(saved?.away ?? '');
   let justSaved = $state(false);
 
   function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
-    localStorage.setItem(storageKey, JSON.stringify({ home: homeScore, away: awayScore }));
+    if (homeScore === '' || awayScore === '') return;
+    predictionsStore.save(fixture.id, { home: homeScore, away: awayScore });
     justSaved = true;
     setTimeout(() => (justSaved = false), 1500);
   }
