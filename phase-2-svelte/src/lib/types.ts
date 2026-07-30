@@ -4,6 +4,7 @@ export type Fixture = {
 	id: string;
 	home: string;
 	away: string;
+	matchweek: number;
 	actual: Score | null;
 };
 
