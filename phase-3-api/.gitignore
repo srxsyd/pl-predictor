@@ -1,0 +1,4 @@
+node_modules/
+predictor.db
+predictor.db-shm
+predictor.db-wal
