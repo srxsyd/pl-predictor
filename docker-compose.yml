@@ -1,0 +1,23 @@
+services:
+  api:
+    build: ./phase-3-api
+    ports:
+      - '3001:3001'
+    environment:
+      - DB_PATH=/app/data/predictor.db
+      - CORS_ORIGIN=http://localhost:5173
+    volumes:
+      - api-data:/app/data
+
+  frontend:
+    build:
+      context: ./phase-2-svelte
+      args:
+        PUBLIC_API_BASE: http://localhost:3001
+    ports:
+      - '5173:3000'
+    depends_on:
+      - api
+
+volumes:
+  api-data:
