@@ -1,6 +1,12 @@
 import { API_BASE } from './config';
 
-type User = { id: string; email: string };
+type User = {
+	id: string;
+	email: string;
+	username: string | null;
+	avatarUrl: string | null;
+	isAdmin: boolean;
+};
 
 async function parseError(res: Response): Promise<string> {
 	try {
@@ -24,12 +30,12 @@ class AuthStore {
 		}
 	}
 
-	async signup(email: string, password: string) {
+	async signup(email: string, password: string, username: string) {
 		const res = await fetch(`${API_BASE}/api/auth/signup`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			credentials: 'include',
-			body: JSON.stringify({ email, password })
+			body: JSON.stringify({ email, password, username })
 		});
 		if (!res.ok) throw new Error(await parseError(res));
 		this.user = await res.json();
@@ -49,6 +55,10 @@ class AuthStore {
 	async logout() {
 		await fetch(`${API_BASE}/api/auth/logout`, { method: 'POST', credentials: 'include' });
 		this.user = null;
+	}
+
+	setAvatarUrl(avatarUrl: string) {
+		if (this.user) this.user = { ...this.user, avatarUrl };
 	}
 }
 

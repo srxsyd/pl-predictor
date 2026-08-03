@@ -14,6 +14,29 @@
   let justSaved = $state(false);
   let error = $state('');
 
+  let now = $state(Date.now());
+  $effect(() => {
+    const interval = setInterval(() => (now = Date.now()), 1000);
+    return () => clearInterval(interval);
+  });
+
+  let countdown = $derived.by(() => {
+    if (!fixture.kickoffAt || fixture.actual) return null;
+    const diffMs = new Date(fixture.kickoffAt).getTime() - now;
+    if (diffMs <= 0) return 'Kickoff!';
+
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    return days > 0
+      ? `Kicks off in ${days}d ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+      : `Kicks off in ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  });
+
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
     if (homeScore === '' || awayScore === '') return;
@@ -29,7 +52,10 @@
 </script>
 
 <div class="fixture-card">
-  <span class="teams">{fixture.home} vs {fixture.away}</span>
+  <div class="teams-block">
+    <span class="teams">{fixture.home} vs {fixture.away}</span>
+    {#if countdown}<span class="countdown">{countdown}</span>{/if}
+  </div>
   {#if authStore.user}
     <form onsubmit={handleSubmit}>
       <input type="number" min="0" max="20" bind:value={homeScore} required />
@@ -54,6 +80,16 @@
     border: 1px solid #ddd;
     border-radius: 10px;
     margin-bottom: 0.75rem;
+  }
+  .teams-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .countdown {
+    font-size: 0.78rem;
+    color: #37003c;
+    font-variant-numeric: tabular-nums;
   }
   input {
     width: 48px;

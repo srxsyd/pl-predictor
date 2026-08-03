@@ -1,16 +1,16 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import FixtureCard from '$lib/FixtureCard.svelte';
-  import { MOCK_USERS } from '$lib/data';
+  import { authStore } from '$lib/auth.svelte';
   import { API_BASE } from '$lib/config';
-  import { calculatePoints } from '$lib/scoring';
-  import type { Score } from '$lib/types';
+  import type { Score, LeaderboardEntry } from '$lib/types';
   import type { PageProps } from './$types';
 
   let { data }: PageProps = $props();
 
   let predictions = $state<Record<string, Score>>({});
   let predictionsLoaded = $state(false);
+  let leaderboard = $state<LeaderboardEntry[]>(untrack(() => data.leaderboard));
 
   onMount(async () => {
     try {
@@ -24,6 +24,11 @@
     }
   });
 
+  async function refreshLeaderboard() {
+    const res = await fetch(`${API_BASE}/api/leaderboard`);
+    if (res.ok) leaderboard = await res.json();
+  }
+
   async function handleSave(fixtureId: string, score: Score) {
     const res = await fetch(`${API_BASE}/api/predictions`, {
       method: 'POST',
@@ -36,20 +41,8 @@
       throw new Error(body.error ?? 'Failed to save prediction');
     }
     predictions[fixtureId] = score;
+    await refreshLeaderboard();
   }
-
-  let myPoints = $derived(
-    data.fixtures.reduce((sum, fixture) => {
-      const predicted = predictions[fixture.id];
-      if (!predicted) return sum;
-      const pts = calculatePoints(predicted, fixture.actual);
-      return pts !== null ? sum + pts : sum;
-    }, 0)
-  );
-
-  let leaderboard = $derived(
-    [...MOCK_USERS, { name: 'You', points: myPoints }].sort((a, b) => b.points - a.points)
-  );
 </script>
 
 <h1>Matchweek 1</h1>
@@ -68,15 +61,15 @@
   <thead>
     <tr>
       <th>#</th>
-      <th>Name</th>
+      <th>Username</th>
       <th>Points</th>
     </tr>
   </thead>
   <tbody>
-    {#each leaderboard as entry, index (entry.name)}
-      <tr class:me={entry.name === 'You'}>
+    {#each leaderboard as entry, index (entry.username)}
+      <tr class:me={entry.username === authStore.user?.username}>
         <td>{index + 1}</td>
-        <td>{entry.name}</td>
+        <td>{entry.username}</td>
         <td>{entry.points}</td>
       </tr>
     {/each}

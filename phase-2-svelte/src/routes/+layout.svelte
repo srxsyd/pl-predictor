@@ -16,7 +16,17 @@
     {#if authStore.loading}
       <span class="nav-text">...</span>
     {:else if authStore.user}
-      <span class="nav-text">{authStore.user.email}</span>
+      <a href="/profile" class="profile-link">
+        {#if authStore.user.avatarUrl}
+          <img class="avatar" src={authStore.user.avatarUrl} alt="" />
+        {:else}
+          <span class="avatar-placeholder">{authStore.user.email[0].toUpperCase()}</span>
+        {/if}
+        <span class="nav-text">{authStore.user.email}</span>
+      </a>
+      {#if authStore.user.isAdmin}
+        <a href="/admin">Admin</a>
+      {/if}
       <button onclick={() => authStore.logout()}>Log out</button>
     {:else}
       <a href="/login">Log in</a>
@@ -54,6 +64,28 @@
   }
   nav a {
     color: #04f5ff;
+  }
+  .profile-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+  }
+  .avatar,
+  .avatar-placeholder {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .avatar-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #04f5ff;
+    color: #37003c;
+    font-size: 0.75rem;
+    font-weight: 700;
   }
   nav button {
     background: transparent;

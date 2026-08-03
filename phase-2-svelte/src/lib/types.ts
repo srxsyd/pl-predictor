@@ -5,10 +5,11 @@ export type Fixture = {
 	home: string;
 	away: string;
 	matchweek: number;
+	kickoffAt: string | null;
 	actual: Score | null;
 };
 
 export type LeaderboardEntry = {
-	name: string;
+	username: string;
 	points: number;
 };

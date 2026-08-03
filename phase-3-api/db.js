@@ -11,6 +11,7 @@ db.exec(`
     home TEXT NOT NULL,
     away TEXT NOT NULL,
     matchweek INTEGER NOT NULL,
+    kickoff_at TEXT,
     actual_home INTEGER,
     actual_away INTEGER
   );
@@ -18,7 +19,10 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
+    username TEXT,
     password_hash TEXT NOT NULL,
+    avatar_url TEXT,
+    is_admin INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -37,3 +41,23 @@ db.exec(`
     UNIQUE(user_id, fixture_id)
   );
 `);
+
+// additive migrations for databases created before these columns existed —
+// CREATE TABLE IF NOT EXISTS above only helps on a brand-new database
+for (const alterStatement of [
+  'ALTER TABLE users ADD COLUMN avatar_url TEXT',
+  'ALTER TABLE users ADD COLUMN username TEXT',
+  'ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0',
+  'ALTER TABLE fixtures ADD COLUMN kickoff_at TEXT'
+]) {
+  try {
+    db.exec(alterStatement);
+  } catch (err) {
+    if (!err.message.includes('duplicate column name')) throw err;
+  }
+}
+
+// a UNIQUE index (rather than an inline UNIQUE column constraint) so this same
+// statement works whether username came from CREATE TABLE or the ALTER above —
+// SQLite's ALTER TABLE ADD COLUMN doesn't allow adding UNIQUE constraints directly
+db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)');

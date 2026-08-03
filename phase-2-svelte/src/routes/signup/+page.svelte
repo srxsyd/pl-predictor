@@ -2,6 +2,7 @@
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/auth.svelte';
 
+  let username = $state('');
   let email = $state('');
   let password = $state('');
   let error = $state('');
@@ -12,7 +13,7 @@
     error = '';
     submitting = true;
     try {
-      await authStore.signup(email, password);
+      await authStore.signup(email, password, username);
       goto('/');
     } catch (err) {
       error = err instanceof Error ? err.message : 'Signup failed';
@@ -25,6 +26,11 @@
 <h1>Sign up</h1>
 
 <form onsubmit={handleSubmit}>
+  <label>
+    Username
+    <input type="text" bind:value={username} minlength="2" maxlength="24" pattern="[a-zA-Z0-9_-]+" required />
+    <span class="hint">2-24 characters: letters, numbers, underscores, or hyphens. Shown on the leaderboard.</span>
+  </label>
   <label>
     Email
     <input type="email" bind:value={email} required />

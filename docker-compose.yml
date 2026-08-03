@@ -1,4 +1,16 @@
 services:
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    ports:
+      - '9000:9000' # S3 API
+      - '9001:9001' # web console (http://localhost:9001)
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin123
+    volumes:
+      - minio-data:/data
+
   api:
     build: ./phase-3-api
     ports:
@@ -6,8 +18,16 @@ services:
     environment:
       - DB_PATH=/app/data/predictor.db
       - CORS_ORIGIN=http://localhost:5173
+      - S3_ENDPOINT=http://minio:9000 # how the API container reaches MinIO
+      - S3_PUBLIC_ENDPOINT=http://localhost:9000 # how the browser reaches MinIO
+      - S3_ACCESS_KEY=minioadmin
+      - S3_SECRET_KEY=minioadmin123
+      - S3_BUCKET=pl-predictor
+      - ADMIN_EMAILS=${ADMIN_EMAILS:-}
     volumes:
       - api-data:/app/data
+    depends_on:
+      - minio
 
   frontend:
     build:
@@ -21,3 +41,4 @@ services:
 
 volumes:
   api-data:
+  minio-data:

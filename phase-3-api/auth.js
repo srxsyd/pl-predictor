@@ -8,6 +8,17 @@ export function hashPassword(password) {
   return bcrypt.hash(password, 12);
 }
 
+// bootstrap mechanism for the very first admin(s): list their email(s) in the
+// ADMIN_EMAILS env var (comma-separated) and they're granted admin on
+// signup/login — no separate "create an admin" flow needed
+export function isAdminEmail(email) {
+  const adminEmails = (process.env.ADMIN_EMAILS || '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  return adminEmails.includes(email.toLowerCase());
+}
+
 export function verifyPassword(password, hash) {
   return bcrypt.compare(password, hash);
 }
@@ -29,7 +40,10 @@ export function getUserBySessionToken(token) {
     return null;
   }
 
-  return db.prepare('SELECT id, email, created_at FROM users WHERE id = ?').get(session.user_id);
+  const row = db
+    .prepare('SELECT id, email, username, avatar_url AS avatarUrl, is_admin AS isAdmin, created_at FROM users WHERE id = ?')
+    .get(session.user_id);
+  return row && { ...row, isAdmin: Boolean(row.isAdmin) };
 }
 
 export function destroySession(token) {
